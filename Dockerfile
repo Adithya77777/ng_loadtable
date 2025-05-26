@@ -1,24 +1,13 @@
-# # Use the official Python image
-# FROM python:3.11-slim
-
-# # Set working directory
-# WORKDIR /app
-
-# # Copy requirements and install
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
-
-# # Copy the source code
-# COPY . .
-
-# # Command to run the app
-# CMD ["python", "main.py"]
-
-
-
-# Example Dockerfile for a Python app
+# Example Dockerfile for Python
 FROM python:3.10-slim
+
 WORKDIR /app
-COPY . .
+COPY requirements.txt .
 RUN pip install -r requirements.txt
-CMD ["python", "main.py"]
+COPY . .
+
+# Ensure this line exposes the correct port
+EXPOSE 8080
+
+# Start your app
+CMD ["python", "app.py"]
