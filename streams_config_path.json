@@ -1,0 +1,8 @@
+{
+    "txns": "/txns",
+    "chargeback": "/chargebacks",
+    "chargebackMessages": "/chargebackMessages",
+    "chargebackStatuses": "/chargebackStatuses",
+    "Binsdata": "/bins", 
+    "txnResults": "/txnResults" 
+}
