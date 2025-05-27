@@ -22,12 +22,12 @@ jobs:
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
-        project_id: ${{ secrets.my-proforce-project }}
+        project_id: ${{ secrets.my-proforce-project}}
 
     - name: Deploy Cloud Function
       run: |
         gcloud functions deploy read_streams_config \
-          --project=${{ secrets.GCP_PROJECT_ID }} \
+          --project=${{ secrets.my-proforce-project }} \
           --region=europe-west1 \
           --runtime=python311 \
           --trigger-http \
