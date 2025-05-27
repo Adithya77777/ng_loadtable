@@ -29,13 +29,13 @@ jobs:
         GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       run: |
         # gcloud config set project "$GCP_PROJECT_ID"
-        gcloud functions deploy loadconfigtable \
+        gcloud functions deploy read_streams_config \
           --project="$GCP_PROJECT_ID" \
           --region=europe-west1 \
           --runtime=python311 \
           --trigger-http \
           --allow-unauthenticated \
           --source=. \
-          --entry-point=loadconfigtable \
+          --entry-point=read_streams_config \
           --service-account=my-proforce-project@appspot.gserviceaccount.com
 
