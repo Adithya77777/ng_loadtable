@@ -37,7 +37,7 @@ jobs:
           --allow-unauthenticated \
           --source=. \
           --entry-point=read_streams_config \
-          --service-account=--service-account=my-proforce-project@appspot.gserviceaccount.com
+          --service-account=service-account=my-proforce-project@appspot.gserviceaccount.com
 
 
 # name: Deploy to Google Cloud Functions
