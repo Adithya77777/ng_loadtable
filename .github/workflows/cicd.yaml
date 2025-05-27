@@ -26,6 +26,7 @@ jobs:
 
     - name: Deploy Cloud Function
       run: |
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
         gcloud functions deploy read_streams_config \
           --project=${{ secrets.GCP_PROJECT_ID }} \
           --region=europe-west1 \
@@ -35,7 +36,6 @@ jobs:
           --source=. \
           --entry-point=read_streams_config \
           --service-account=cloud-function-deployer@my-proforce-project.iam.gserviceaccount.com
-
 
 # name: Deploy to Google Cloud Functions
 
@@ -56,20 +56,22 @@ jobs:
 #       uses: google-github-actions/auth@v2
 #       with:
 #         credentials_json: ${{ secrets.GCP_SA_KEY }}
-#         project_id: ${{ secrets.my-proforce-project }}
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
 
 #     - name: Set up Google Cloud SDK
 #       uses: google-github-actions/setup-gcloud@v2
 #       with:
-#         project_id: ${{ secrets.my-proforce-project}}
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
 
 #     - name: Deploy Cloud Function
 #       run: |
 #         gcloud functions deploy read_streams_config \
-#           --project=${{ secrets.my-proforce-project }} \
+#           --project=${{ secrets.GCP_PROJECT_ID }} \
 #           --region=europe-west1 \
 #           --runtime=python311 \
 #           --trigger-http \
 #           --allow-unauthenticated \
 #           --source=. \
-#           --entry-point=read_streams_config
+#           --entry-point=read_streams_config \
+#           --service-account=cloud-function-deployer@my-proforce-project.iam.gserviceaccount.com
+
