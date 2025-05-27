@@ -11,10 +11,10 @@ from dateutil.relativedelta import relativedelta
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger(__name__)
 
-PROJECT_NAME = "powerful-lore-431718-e4"
-BUCKET_NAME = "proforce_payrix"
+PROJECT_NAME = "my-proforce-project"
+BUCKET_NAME = "pest_payrix"
 BQ_DATASET = "pest_payrix"
-BQ_TABLE = "config_table"
+BQ_TABLE = "config"
 JSON_CONFIG_PATH = "config/streams_config.json"
 PROCESSED_JSON_CONFIG_PATH = "config/processed_streams_config.json"
 
@@ -237,3 +237,28 @@ def read_streams_config(request):
     except Exception as e:
         logger.error(f"Error in read_streams_config: {str(e)}")
         return {"status": "error", "message": str(e)}, 500
+
+
+# import functions_framework
+
+# @functions_framework.http
+# def hello_http(request):
+#     """HTTP Cloud Function.
+#     Args:
+#         request (flask.Request): The request object.
+#         <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
+#     Returns:
+#         The response text, or any set of values that can be turned into a
+#         Response object using `make_response`
+#         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
+#     """
+#     request_json = request.get_json(silent=True)
+#     request_args = request.args
+
+#     if request_json and 'name' in request_json:
+#         name = request_json['name']
+#     elif request_args and 'name' in request_args:
+#         name = request_args['name']
+#     else:
+#         name = 'World'
+#     return 'Hello {}!'.format(name)

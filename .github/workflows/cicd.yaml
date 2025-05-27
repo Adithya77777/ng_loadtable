@@ -1,0 +1,32 @@
+name: Deploy to Google Cloud Functions
+
+on:
+  push:
+    branches:
+      - first_function  # Trigger deployment on push to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ secrets.my-proforce-project}}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: Deploy Cloud Function
+      run: |
+        gcloud functions deploy read_streams_config \
+          --project=${{ secrets.my-proforce-project }} \
+          --region= europe-west1 \
+          --runtime=python311 \
+          --trigger-http \
+          --allow-unauthenticated \
+          --source=. \
+          --entry-point=read_streams_config
