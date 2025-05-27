@@ -17,20 +17,59 @@ jobs:
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
-        project_id: ${{ secrets.my-proforce-project }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
-        project_id: ${{ secrets.my-proforce-project}}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Deploy Cloud Function
       run: |
         gcloud functions deploy read_streams_config \
-          --project=${{ secrets.my-proforce-project }} \
+          --project=${{ secrets.GCP_PROJECT_ID }} \
           --region=europe-west1 \
           --runtime=python311 \
           --trigger-http \
           --allow-unauthenticated \
           --source=. \
-          --entry-point=read_streams_config
+          --entry-point=read_streams_config \
+          --service-account=cloud-function-deployer@my-proforce-project.iam.gserviceaccount.com
+
+
+# name: Deploy to Google Cloud Functions
+
+# on:
+#   push:
+#     branches:
+#       - first_function
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4
+
+#     - name: Authenticate to Google Cloud
+#       uses: google-github-actions/auth@v2
+#       with:
+#         credentials_json: ${{ secrets.GCP_SA_KEY }}
+#         project_id: ${{ secrets.my-proforce-project }}
+
+#     - name: Set up Google Cloud SDK
+#       uses: google-github-actions/setup-gcloud@v2
+#       with:
+#         project_id: ${{ secrets.my-proforce-project}}
+
+#     - name: Deploy Cloud Function
+#       run: |
+#         gcloud functions deploy read_streams_config \
+#           --project=${{ secrets.my-proforce-project }} \
+#           --region=europe-west1 \
+#           --runtime=python311 \
+#           --trigger-http \
+#           --allow-unauthenticated \
+#           --source=. \
+#           --entry-point=read_streams_config
