@@ -3,7 +3,6 @@ import json
 import logging
 import functions_framework
 import os
-import sys
 import pandas as pd
 from google.cloud import storage
 from google.cloud import bigquery
