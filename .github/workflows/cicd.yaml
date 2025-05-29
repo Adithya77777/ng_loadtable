@@ -3,7 +3,7 @@ name: Deploy to Google Cloud Functions
 on:
   push:
     branches:
-      - main  # Trigger only when code is merged into main
+      - main
 
 jobs:
   deploy:
