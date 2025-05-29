@@ -1,4 +1,4 @@
-# Testing for CI/CD in local
+# Testing for CI/CD in personal account
 import json
 import logging
 import functions_framework
