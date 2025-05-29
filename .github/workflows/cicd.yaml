@@ -36,7 +36,7 @@ jobs:
           --allow-unauthenticated \
           --source=. \
           --entry-point=read_streams_config \
-          --service-account=my-proforce-project@appspot.gserviceaccount.com
+          --service-account=leastprivilege@my-proforce-project.iam.gserviceaccount.com
 
 
 
