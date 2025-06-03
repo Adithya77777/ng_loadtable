@@ -11,7 +11,7 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write  # Needed for Workload Identity Federation
+      id-token: write  # Required for Workload Identity Federation
 
     steps:
       - name: Checkout code
@@ -35,8 +35,8 @@ jobs:
             --allow-unauthenticated \
             --source=cloudfunction/loadconfigtable \
             --entry-point=read_streams_config \
-            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
-            --verbosity=debug
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
 
 
 # name: Deploy to Google Cloud Functions
