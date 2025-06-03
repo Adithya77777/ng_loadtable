@@ -1,4 +1,4 @@
-# Testing for CI/CD from github
+# Testing CI/CD
 import json
 import logging
 import functions_framework
