@@ -33,7 +33,7 @@ jobs:
             --runtime=python312 \
             --trigger-http \
             --allow-unauthenticated \
-            --source=cloudfunction/loadconfigtable \
+            --source=. \
             --entry-point=read_streams_config \
             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
 
