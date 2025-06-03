@@ -29,8 +29,8 @@ jobs:
       - name: Deploy loadconfigtable-repo function
         run: |
           gcloud functions deploy loadconfigtable-repo \
-            --region=us-central1 \
-            --runtime=python312 \
+            --region=europe-west1 \
+            --runtime=python311 \
             --trigger-http \
             --allow-unauthenticated \
             --source=. \
