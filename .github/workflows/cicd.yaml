@@ -1,4 +1,3 @@
-
 name: Deploy to Google Cloud Functions
 
 on:
@@ -36,7 +35,48 @@ jobs:
             --allow-unauthenticated \
             --source=cloudfunction/loadconfigtable \
             --entry-point=read_streams_config \
-            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+            --verbosity=debug
+
+
+# name: Deploy to Google Cloud Functions
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     permissions:
+#       contents: read
+#       id-token: write  # Needed for Workload Identity Federation
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Authenticate to Google Cloud
+#         uses: google-github-actions/auth@v2
+#         with:
+#           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+#           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+#       - name: Set up Google Cloud SDK
+#         uses: google-github-actions/setup-gcloud@v2
+
+#       - name: Deploy loadconfigtable-repo function
+#         run: |
+#           gcloud functions deploy loadconfigtable-repo \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/loadconfigtable \
+#             --entry-point=read_streams_config \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
 
       # - name: Deploy invoke-fetcher-repo function
       #   run: |
