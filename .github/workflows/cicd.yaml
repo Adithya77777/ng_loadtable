@@ -32,7 +32,6 @@ jobs:
             --region=europe-west1 \
             --runtime=python311 \
             --trigger-http \
-            --allow-unauthenticated \
             --source=. \
             --entry-point=read_streams_config \
             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
