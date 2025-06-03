@@ -1,3 +1,4 @@
+
 name: Deploy to Google Cloud Functions
 
 on:
@@ -9,34 +10,107 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write  # Needed for Workload Identity Federation
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-      with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
 
-    - name: Deploy Cloud Function
-      env:
-        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      run: |
-        gcloud functions deploy read_streams_config \
-          --project="$GCP_PROJECT_ID" \
-          --region=europe-west1 \
-          --runtime=python311 \
-          --trigger-http \
-          --allow-unauthenticated \
-          --source=. \
-          --entry-point=read_streams_config \
-          --service-account=leastprivilege@my-proforce-project.iam.gserviceaccount.com
+      - name: Deploy loadconfigtable-repo function
+        run: |
+          gcloud functions deploy loadconfigtable-repo \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/loadconfigtable \
+            --entry-point=read_streams_config \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # - name: Deploy invoke-fetcher-repo function
+      #   run: |
+      #     gcloud functions deploy invoke-fetcher-repo \
+      #       --region=us-central1 \
+      #       --runtime=python312 \
+      #       --trigger-http \
+      #       --allow-unauthenticated \
+      #       --source=cloudfunction/invoke-fetcher \
+      #       --entry-point=invoke_fetcher \
+      #       --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # - name: Deploy pestrouteingestion-repo function
+      #   run: |
+      #     gcloud functions deploy pestrouteingestion-repo \
+      #       --region=us-central1 \
+      #       --runtime=python312 \
+      #       --trigger-http \
+      #       --allow-unauthenticated \
+      #       --source=cloudfunction/pestrouteingestion \
+      #       --entry-point=fetch_and_load \
+      #       --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # - name: Deploy external-table-creation-repo function
+      #   run: |
+      #     gcloud functions deploy external-table-creation-repo \
+      #       --region=us-central1 \
+      #       --runtime=python312 \
+      #       --trigger-http \
+      #       --allow-unauthenticated \
+      #       --source=cloudfunction/external-table-creation \
+      #       --entry-point=load_latest_parquet_to_bigquery \
+      #       --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+
+# name: Deploy to Google Cloud Functions
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4
+
+#     - name: Authenticate to Google Cloud
+#       uses: google-github-actions/auth@v2
+#       with:
+#         credentials_json: ${{ secrets.GCP_SA_KEY }}
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+#     - name: Set up Google Cloud SDK
+#       uses: google-github-actions/setup-gcloud@v2
+#       with:
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+#     - name: Deploy Cloud Function
+#       env:
+#         GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+#       run: |
+#         gcloud functions deploy read_streams_config \
+#           --project="$GCP_PROJECT_ID" \
+#           --region=europe-west1 \
+#           --runtime=python311 \
+#           --trigger-http \
+#           --allow-unauthenticated \
+#           --source=. \
+#           --entry-point=read_streams_config \
+#           --service-account=leastprivilege@my-proforce-project.iam.gserviceaccount.com
 
 
 # ---------------------------------------------------- working for feature branch directly (tested code)
