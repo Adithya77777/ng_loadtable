@@ -1,0 +1,7 @@
+PROJECT_NAME = "powerful-lore-431718-e4"
+BUCKET_NAME_PAYRIX = "proforce_payrix"
+BUCKET_NAME_BRAINTREE = "proforce_braintree"
+BQ_DATASET = "pest_payrix"
+BQ_TABLE = "config_table"
+JSON_CONFIG_PATH = "config/streams_config.json"
+PROCESSED_JSON_CONFIG_PATH = "config/processed_streams_config.json"
