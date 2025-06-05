@@ -1,0 +1,254 @@
+
+# ------------------------------------------Deploy Updated Functions ----------------------------------------------------
+name: Deploy to Google Cloud Functions
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write  # Needed for Workload Identity Federation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Fetch previous commit for git diff
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      # ------------------ load-bq-config ------------------
+      - name: Check for changes in load-bq-config
+        id: load_bq_config
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/load-bq-config/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy load-bq-config
+        if: steps.load_bq_config.outputs.changed == 'true'
+        run: |
+          gcloud functions deploy load-bq-config \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/load-bq-config \
+            --entry-point=read_streams_config \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # ------------------ source-router ------------------
+      - name: Check for changes in source-router
+        id: source_router
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/source-router/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy source-router
+        if: steps.source_router.outputs.changed == 'true'
+        run: |
+          gcloud functions deploy source-router \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/source-router \
+            --entry-point=invoke_fetcher \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # ------------------ load-payrix-data ------------------
+      - name: Check for changes in load-payrix-data
+        id: load_payrix_data
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/load-payrix-data/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy load-payrix-data
+        if: steps.load_payrix_data.outputs.changed == 'true'
+        run: |
+          gcloud functions deploy load-payrix-data \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/load-payrix-data \
+            --entry-point=fetch_and_load \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # ------------------ load-braintree-data ------------------
+      - name: Check for changes in load-braintree-data
+        id: load_braintree_data
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/fetch-braintree-data/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy load-braintree-data
+        if: steps.load_braintree_data.outputs.changed == 'true'
+        run: |
+          gcloud functions deploy load-braintree-data \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/fetch-braintree-data \
+            --entry-point=braintree_fetch_and_load \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # ------------------ create-external-tables ------------------
+      - name: Check for changes in create-external-tables
+        id: create_external_tables
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/create-external-tables/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy create-external-tables
+        if: steps.create_external_tables.outputs.changed == 'true'
+        run: |
+          gcloud functions deploy create-external-tables \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/create-external-tables \
+            --entry-point=load_latest_parquet_to_bigquery \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      # ------------------ invoke-dataform-wf ------------------
+      - name: Check for changes in invoke-dataform-wf
+        id: invoke_dataform_wf
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/invoke-dataform-wf/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy invoke-dataform-wf
+        if: steps.invoke_dataform_wf.outputs.changed == 'true'
+        run: |
+          gcloud functions deploy invoke-dataform-wf \
+            --region=us-central1 \
+            --runtime=python312 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source=cloudfunction/invoke-dataform-wf \
+            --entry-point=generate_dataform_token \
+            --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+
+
+# # ------------------------------------------Deploy every function on every deployment --------------------------------------------------------------
+# name: Deploy to Google Cloud Functions
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     permissions:
+#       contents: read
+#       id-token: write  # Needed for Workload Identity Federation
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Authenticate to Google Cloud
+#         uses: google-github-actions/auth@v2
+#         with:
+#           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+#           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+#       - name: Set up Google Cloud SDK
+#         uses: google-github-actions/setup-gcloud@v2
+
+#       - name: Deploy load-bq-config
+#         run: |
+#           gcloud functions deploy load-bq-config \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/load-bq-config \
+#             --entry-point=read_streams_config \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+#             --verbosity=debug
+
+#       - name: Deploy source-router
+#         run: |
+#           gcloud functions deploy source-router \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/source-router \
+#             --entry-point=invoke_fetcher \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+#             --verbosity=debug
+
+#       - name: Deploy load-payrix-data
+#         run: |
+#           gcloud functions deploy load-payrix-data \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/load-payrix-data \
+#             --entry-point=fetch_and_load \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+#             --verbosity=debug
+
+#       - name: Deploy load-braintree-data
+#         run: |
+#           gcloud functions deploy load-braintree-data \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/fetch-braintree-data \
+#             --entry-point=braintree_fetch_and_load \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+#             --verbosity=debug
+
+#       - name: Deploy create-external-tables
+#         run: |
+#           gcloud functions deploy create-external-tables \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/create-external-tables \
+#             --entry-point=load_latest_parquet_to_bigquery \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+#             --verbosity=debug
+
+#       - name: Deploy invoke-dataform-wf
+#         run: |
+#           gcloud functions deploy invoke-dataform-wf \
+#             --region=us-central1 \
+#             --runtime=python312 \
+#             --trigger-http \
+#             --allow-unauthenticated \
+#             --source=cloudfunction/invoke-dataform-wf \
+#             --entry-point=generate_dataform_token \
+#             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }} \
+#             --verbosity=debug
