@@ -1,4 +1,4 @@
-# testing cicd
+# testing ci/cd
 
 import json
 import logging
