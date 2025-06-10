@@ -9,4 +9,4 @@ def test_entrypoint():
     return read_streams_config(request)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+    app.run(port=8081, use_reloader=False)
