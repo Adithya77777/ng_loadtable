@@ -1,5 +1,3 @@
-# testing ci/cd
-
 import json
 import logging
 import functions_framework
@@ -354,4 +352,3 @@ def read_streams_config(request):
     except Exception as e:
         logger.error(f"Error in read_streams_config: {str(e)}")
         return {"status": "error", "message": str(e)}, 500
-

@@ -32,22 +32,15 @@ jobs:
 
       # ------------------ load-bq-config ------------------
       - name: Check for changes in load-bq-config
-        id: load_bq_config
-        run: |
-          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^cloudfunction/load-bq-config/'; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Deploy load-bq-config
-        if: steps.load_bq_config.outputs.changed == 'true'
         run: |
           gcloud functions deploy load-bq-config \
             --region=us-central1 \
             --runtime=python312 \
             --trigger-http \
-            --source=cloudfunction/load-bq-config \
+            --source=gs://cloud-function-zipped/functions/load-bq-config.zip \
             --entry-point=read_streams_config \
             --service-account=${{ secrets.WIF_SERVICE_ACCOUNT }}
+
 
       # # ------------------ source-router ------------------
       # - name: Check for changes in source-router
